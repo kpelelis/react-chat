@@ -1,4 +1,5 @@
 import React from "react";
+import { css } from "glamor";
 
 type Props = {
 	onSend: string => void
@@ -7,6 +8,32 @@ type Props = {
 type State = {
 	value: string
 };
+
+let inputContainerCss = css({
+	paddingTop: "1rem",
+	paddingLeft: "1rem",
+	display: "flex",
+	justifyContent: "space-between"
+});
+
+let textContainerCss = css({
+	borderRadius: "8px",
+	height: "2rem",
+	width: "100%",
+	border: "none",
+	fontSize: "1rem"
+});
+
+let buttonCss = css({
+	border: "none",
+	fontSize: "1rem",
+	borderRadius: "8px",
+	color: "white",
+	fontWeight: "bold",
+	width: "5rem",
+	height: "2rem",
+	background: "rgb(93, 219, 192)"
+});
 
 export default class UserInput extends React.Component<Props, State> {
 	state = {
@@ -41,40 +68,15 @@ export default class UserInput extends React.Component<Props, State> {
 	render() {
 		const { value } = this.state;
 		return (
-			<div
-				style={{
-					paddingTop: "1rem",
-					paddingLeft: "1rem",
-					display: "flex",
-					justifyContent: "space-between"
-				}}
-			>
+			<div {...inputContainerCss}>
 				<input
-					style={{
-						borderRadius: "8px",
-						height: "2rem",
-						width: "100%",
-						border: "none",
-						fontSize: "1rem"
-					}}
+					{...textContainerCss}
 					value={value}
 					onChange={this.onChange}
 					onKeyPress={this.onKeyPress}
 					placeholder="Type your message here"
 				/>
-				<button
-					style={{
-						border: "none",
-						fontSize: "1rem",
-						borderRadius: "8px",
-						color: "white",
-						fontWeight: "bold",
-						width: "5rem",
-						height: "2rem",
-						background: "rgb(93, 219, 192)"
-					}}
-					onClick={this.onSend}
-				>
+				<button {...buttonCss} onClick={this.onSend}>
 					Send
 				</button>
 			</div>

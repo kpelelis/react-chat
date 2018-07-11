@@ -1,9 +1,9 @@
-const fs = require("fs");
-const http = require("http");
-const WebSocket = require("ws");
+const fs = require('fs');
+const http = require('http');
+const WebSocket = require('ws');
 
 const server = new http.createServer((req, res) => {});
-const ws = new WebSocket.Server({ server });
+const ws = new WebSocket.Server({server});
 
 let users = [];
 
@@ -16,25 +16,25 @@ function sendToAllExcept(payload, user) {
 }
 function parsePayload(sender, payload) {
   switch (payload.type) {
-    case "SET_DETAILS":
+    case 'SET_DETAILS':
       users = users.map(user => {
         if (user.id === sender.id) {
           sendToAllExcept(
             {
-              type: "USER_CONNECTED",
+              type: 'USER_CONNECTED',
               user: {
                 handle: payload.handle,
                 avatar: payload.avatar,
-                id: sender.id
-              }
+                id: sender.id,
+              },
             },
-            sender
+            sender,
           );
           return {
             ...user,
             handle: payload.handle,
             avatar: payload.avatar,
-            loggedIn: true
+            loggedIn: true,
           };
         } else {
           return user;
@@ -42,13 +42,13 @@ function parsePayload(sender, payload) {
       });
       sender.ws.send(
         JSON.stringify({
-          type: "USERS_LIST",
+          type: 'USERS_LIST',
           users: users.filter(user => user.loggedIn).map(user => ({
             id: user.id,
             handle: user.handle,
-            avatar: user.avatar
-          }))
-        })
+            avatar: user.avatar,
+          })),
+        }),
       );
       break;
     default:
@@ -56,31 +56,33 @@ function parsePayload(sender, payload) {
   }
 }
 
-ws.on("connection", ws => {
+ws.on('connection', ws => {
   const newUser = {
     ws,
     id: users.length,
-    loggedIn: false
+    loggedIn: false,
   };
+  console.log(`User ${newUser.id} connected`);
   users = [...users, newUser];
-  ws.on("message", message => {
+  ws.on('message', message => {
     const jsonPayload = JSON.parse(message);
     parsePayload(newUser, jsonPayload);
     if (!jsonPayload.type) {
-      console.error("Error on payload. No type defined");
+      console.error('Error on payload. No type defined');
     }
   });
 
-  ws.on("close", () => {
+  ws.on('close', () => {
+    console.log(`User ${newUser.id} disconected`);
     sendToAllExcept(
       {
-        type: "USER_DISCONNECTED",
-        id: newUser.id
+        type: 'USER_DISCONNECTED',
+        id: newUser.id,
       },
-      newUser
+      newUser,
     );
     users = users.filter(user => (newUser.id === user.id ? null : user));
-    console.warn("Client disconected");
+    console.warn('Client disconected');
   });
 });
 
